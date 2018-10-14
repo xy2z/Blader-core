@@ -85,14 +85,16 @@ class Blader {
 	 * @param string $method GET, POST, etc.
 	 * @param string $route Matching
 	 * @param string $view Filename in views dir.
-	 * @param callable $callable Callback when route is hit. Eg. for setting content-type.
+	 * @param callable $callable (optional) Callback when route is hit. Eg. for setting content-type.
 	 */
 	public function addRoute(string $method, string $routePattern, string $view, $callable = null) {
 		$route = new BladerRoute;
 		$route->method = $method;
 		$route->routePattern = $routePattern;
-		$route->view = $view;
-		$route->callable = $callable;
+		$route->handler = [
+			'view' => $view,
+			'callable' => $callable
+		];
 
 		$this->routes[$routePattern] = $route;
 	}
@@ -103,7 +105,7 @@ class Blader {
 	private function setRouter() {
 		$this->dispatcher = \FastRoute\simpleDispatcher(function(\FastRoute\RouteCollector $r) {
 			foreach ($this->routes as $row) {
-				$r->addRoute($row->method, $row->routePattern, $row->view);
+				$r->addRoute($row->method, $row->routePattern, $row->handler);
 			}
 		});
 	}
@@ -124,6 +126,10 @@ class Blader {
 		return rawurldecode($uri);
 	}
 
+	/**
+	 * Render view
+	 *
+	 */
 	private function renderView() {
 		$routeInfo = $this->dispatcher->dispatch($_SERVER['REQUEST_METHOD'], static::getUri());
 
@@ -134,14 +140,15 @@ class Blader {
 				break;
 
 			case \FastRoute\Dispatcher::FOUND:
-				$template = $routeInfo[1];
-				$vars = array_merge($this->global_vars, $routeInfo[2]);
+				$handler = $routeInfo[1];
+				$template = $handler['view'];
+				$callable = $handler['callable'];
 
-				if (is_callable($this->routes[static::getUri()]->callable)) {
-					call_user_func($this->routes[static::getUri()]->callable);
+				if (is_callable($callable)) {
+					call_user_func($callable);
 				}
 
-				echo $this->blade->run($template, $vars);
+				echo $this->blade->run($template, array_merge($this->global_vars, $routeInfo[2]));
 				break;
 		}
 	}
