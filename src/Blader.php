@@ -85,16 +85,21 @@ class Blader {
 	 * @param string $method GET, POST, etc.
 	 * @param string $route Matching
 	 * @param string $view Filename in views dir.
+	 * @param callable $callable Callback when route is hit. Eg. for setting content-type.
 	 */
-	public function addRoute(string $method, string $routePattern, string $view) {
+	public function addRoute(string $method, string $routePattern, string $view, $callable = null) {
 		$route = new BladerRoute;
 		$route->method = $method;
 		$route->routePattern = $routePattern;
 		$route->view = $view;
+		$route->callable = $callable;
 
-		$this->routes[] = $route;
+		$this->routes[$routePattern] = $route;
 	}
 
+	/**
+	 * Add routes to FastRoute
+	 */
 	private function setRouter() {
 		$this->dispatcher = \FastRoute\simpleDispatcher(function(\FastRoute\RouteCollector $r) {
 			foreach ($this->routes as $row) {
@@ -103,6 +108,11 @@ class Blader {
 		});
 	}
 
+	/**
+	 * Get current URI
+	 *
+	 * @return string URI
+	 */
 	private static function getUri() : string {
 		// Fetch method and URI from somewhere
 		$uri = $_SERVER['REQUEST_URI'];
@@ -126,6 +136,10 @@ class Blader {
 			case \FastRoute\Dispatcher::FOUND:
 				$template = $routeInfo[1];
 				$vars = array_merge($this->global_vars, $routeInfo[2]);
+
+				if (is_callable($this->routes[static::getUri()]->callable)) {
+					call_user_func($this->routes[static::getUri()]->callable);
+				}
 
 				echo $this->blade->run($template, $vars);
 				break;
