@@ -23,14 +23,14 @@ class Blader {
 	 *
 	 * @var string
 	 */
-	public $views_dir = ROOT_DIR . '/resources/views';
+	public $views_dir = ROOT_DIR . '/views';
 
 	/**
 	 * Views cache directory
 	 *
 	 * @var string
 	 */
-	public $cache_dir = ROOT_DIR . '/resources/cache';
+	public $cache_dir = ROOT_DIR . '/cache';
 
 	/**
 	 * BladeOne mode (see BladeOne docs)
