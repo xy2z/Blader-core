@@ -14,7 +14,7 @@
         "eftec/bladeone": "^3.8",
         "nikic/fast-route": "^1.3",
         "erusev/parsedown": "^1.7",
-        "xy2z/lite-config": "1.0"
+        "xy2z/lite-config": "^1.0"
     },
     "autoload": {
         "psr-4": {
