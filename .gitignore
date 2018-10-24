@@ -1,2 +1,6 @@
 /composer.lock
 /vendor
+/views
+/cache
+/config
+/public
