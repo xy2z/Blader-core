@@ -143,12 +143,19 @@ class Blader {
 				$handler = $routeInfo[1];
 				$template = $handler['view'];
 				$callable = $handler['callable'];
+				$template_data = array_merge($this->global_vars, $routeInfo[2]);
 
 				if (is_callable($callable)) {
-					call_user_func($callable);
+					$user_func_return = call_user_func($callable);
+
+					if (is_array($user_func_return)) {
+						$template_data = array_merge($template_data, $user_func_return);
+					} else if (!empty($user_func_return)) {
+						throw new \Exception('Return variable must be an array.');
+					}
 				}
 
-				echo $this->blade->run($template, array_merge($this->global_vars, $routeInfo[2]));
+				echo $this->blade->run($template, $template_data);
 				break;
 		}
 	}
