@@ -146,7 +146,7 @@ class Blader {
 				$template_data = array_merge($this->global_vars, $routeInfo[2]);
 
 				if (is_callable($callable)) {
-					$user_func_return = call_user_func($callable);
+					$user_func_return = call_user_func($callable, $template_data);
 
 					if (is_array($user_func_return)) {
 						$template_data = array_merge($template_data, $user_func_return);
